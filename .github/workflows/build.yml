@@ -29,9 +29,10 @@ jobs:
           cd ios/App
           pod install --repo-update
 
-      - name: Build and Export Unsigned IPA (Final Fix)
+      - name: Build and Export Unsigned IPA (Definitive Fix)
         run: |
           # 1. Archive the project, explicitly disabling code signing. (SUCCESSFUL)
+          # We must use .xcworkspace for CocoaPods support.
           xcodebuild -workspace ios/App/App.xcworkspace \
             -scheme App \
             -configuration Release \
@@ -41,7 +42,8 @@ jobs:
             CODE_SIGNING_REQUIRED=NO \
             clean archive
           
-          # 2. Create the bulletproof ExportOptions.plist using 'none' method.
+          # 2. Create the bulletproof ExportOptions.plist using 'none' and empty teamID.
+          # This satisfies Xcode's validation checks without requiring credentials.
           cat << EOF > ExportOptions.plist
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -49,13 +51,15 @@ jobs:
           <dict>
               <key>method</key>
               <string>none</string>
-              <key>thinning</key>
-              <string><none></string>
+              <key>signingStyle</key>
+              <string>manual</string>
+              <key>teamID</key>
+              <string></string>
           </dict>
           </plist>
           EOF
           
-          # 3. Export the .ipa file using the 'none' ExportOptions.plist
+          # 3. Export the .ipa file using the correct ExportOptions.plist
           xcodebuild -exportArchive \
             -archivePath $PWD/build/App.xcarchive \
             -exportPath $PWD/build \
