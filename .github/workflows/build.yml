@@ -11,6 +11,7 @@ jobs:
       - uses: actions/checkout@v4 
 
       - name: Set up Ruby for CocoaPods
+        # Ensures ruby is available for pod install
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.3' 
@@ -19,17 +20,19 @@ jobs:
         run: npm install
 
       - name: Copy Web Assets (Capacitor Sync)
+        # Required to get the latest web code into the iOS project
         run: npx cap copy ios
         
       - name: Install Pods
+        # Install CocoaPods dependencies (Capacitor)
         run: |
           cd ios/App
           pod install --repo-update
 
       - name: Build the IPA 
         run: |
-          # Archive the project (FINAL CODE SIGNING FIX)
-          xcodebuild -project ios/App/App.xcodeproj \
+          # 1. Archive the project (Uses .xcworkspace for CocoaPods support)
+          xcodebuild -workspace ios/App/App.xcworkspace \
             -scheme App \
             -configuration Release \
             -destination 'generic/platform=iOS' \
@@ -38,7 +41,7 @@ jobs:
             CODE_SIGNING_REQUIRED=NO \
             clean archive
           
-          # Export the .ipa file
+          # 2. Export the .ipa file (Uses a standard unsigned export method)
           xcodebuild -exportArchive \
             -archivePath $PWD/build/App.xcarchive \
             -exportPath $PWD/build \
@@ -46,6 +49,7 @@ jobs:
             -allowProvisioningUpdates
 
       - name: Upload the .ipa file
+        # Saves the final IPA so you can download it from the workflow run
         uses: actions/upload-artifact@v4
         with:
           name: Musi-App-IPA
