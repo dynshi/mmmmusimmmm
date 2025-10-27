@@ -11,7 +11,6 @@ jobs:
       - uses: actions/checkout@v4 
 
       - name: Set up Ruby for CocoaPods
-        # Ensures ruby is available for pod install
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.3' 
@@ -20,18 +19,16 @@ jobs:
         run: npm install
 
       - name: Copy Web Assets (Capacitor Sync)
-        # Required to get the latest web code into the iOS project
         run: npx cap copy ios
         
       - name: Install Pods
-        # Install CocoaPods dependencies (Capacitor)
         run: |
           cd ios/App
           pod install --repo-update
 
-      - name: Build and Export Unsigned IPA (Absolute Final Fix)
+      - name: Build and Export Unsigned IPA (Supported Method Fix)
         run: |
-          # 1. Archive the project, explicitly disabling code signing. (This step already SUCCEEDS)
+          # 1. Archive the project, explicitly disabling code signing. (This step SUCCEEDS)
           xcodebuild -workspace ios/App/App.xcworkspace \
             -scheme App \
             -configuration Release \
@@ -41,37 +38,26 @@ jobs:
             CODE_SIGNING_REQUIRED=NO \
             clean archive
           
-          # 2. Create the bulletproof ExportOptions.plist using 'method: none' 
-          # AND a dummy provisioningProfiles entry to satisfy Xcode's validation.
-          # This should eliminate the exit code 70 error.
+          # 2. Create ExportOptions.plist using the *supported* method: 'development'.
+          # We eliminate all other keys to avoid validation errors.
           cat << EOF > ExportOptions.plist
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
           <plist version="1.0">
           <dict>
               <key>method</key>
-              <string>none</string>
-              <key>signingStyle</key>
-              <string>manual</string>
-              <key>teamID</key>
-              <string></string>
-              <key>provisioningProfiles</key>
-              <dict>
-                <key>com.dynshi.musi</key>
-                <string>UnsignedProfile</string>
-              </dict>
+              <string>development</string>
           </dict>
           </plist>
           EOF
           
-          # 3. Export the .ipa file using the correct ExportOptions.plist
+          # 3. Export the .ipa file.
           xcodebuild -exportArchive \
             -archivePath $PWD/build/App.xcarchive \
             -exportPath $PWD/build \
             -exportOptionsPlist ExportOptions.plist
 
       - name: Upload the .ipa file
-        # Saves the final IPA so you can download it from the workflow run
         uses: actions/upload-artifact@v4
         with:
           name: Musi-App-IPA
