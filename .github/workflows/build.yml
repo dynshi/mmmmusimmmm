@@ -20,11 +20,12 @@ jobs:
         run: |
           # Archive the project
           xcodebuild -project ios/App/App.xcodeproj \
-                     -scheme App \
-                     -configuration Release \
-                     -destination 'generic/platform=iOS' \
-                     -archivePath $PWD/build/App.xcarchive \
-                     clean archive
+           -scheme App \
+           -configuration Release \
+           -destination 'generic/platform=iOS' \
+           -archivePath $PWD/build/App.xcarchive \
+           CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO \
+           clean archive
 
           # Export the .ipa file
           xcodebuild -exportArchive \
