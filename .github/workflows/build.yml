@@ -1,31 +1,26 @@
 name: Build IPA for Sideloading
 
 on:
-  # Allows triggering the workflow manually from the GitHub Actions tab
   workflow_dispatch: 
 
 jobs:
   build:
-    # Use the latest macOS runner for Xcode build environment
     runs-on: macos-latest 
 
     steps:
-      - uses: actions/checkout@v4 # 1. Get your code
+      - uses: actions/checkout@v4 
 
       - name: Set up Ruby for CocoaPods
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '3.3' # Recommended ruby version for newer macOS/Xcode
+          ruby-version: '3.3' 
 
       - name: Install Node.js Dependencies
         run: npm install
 
       - name: Copy Web Assets (Capacitor Sync)
-        # This copies your web code into the native project structure
         run: npx cap copy ios
         
-      # 🚨 CRITICAL FIX: This step installs the native iOS dependencies (CocoaPods)
-      # This resolves the "Pods-App.release.xcconfig does not exist" error (Exit Code 65)
       - name: Install Pods
         run: |
           cd ios/App
@@ -33,17 +28,17 @@ jobs:
 
       - name: Build the IPA 
         run: |
-          # Archive the project (ENSURING SIGNING IS DISABLED)
+          # Archive the project (FINAL CODE SIGNING FIX)
           xcodebuild -project ios/App/App.xcodeproj \
             -scheme App \
             -configuration Release \
             -destination 'generic/platform=iOS' \
             -archivePath $PWD/build/App.xcarchive \
-            # 👇 THESE FLAGS ARE ESSENTIAL to bypass the signing requirement
-            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
             clean archive
           
-          # Export the .ipa file (CORRECTED Info.plist PATH)
+          # Export the .ipa file
           xcodebuild -exportArchive \
             -archivePath $PWD/build/App.xcarchive \
             -exportPath $PWD/build \
@@ -54,4 +49,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Musi-App-IPA
-          path: build/App.ipa # The final .ipa is created here
+          path: build/App.ipa
