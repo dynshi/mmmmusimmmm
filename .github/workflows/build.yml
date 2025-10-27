@@ -29,9 +29,10 @@ jobs:
           cd ios/App
           pod install --repo-update
 
-      - name: Build the IPA 
+      - name: Build and Export Unsigned IPA
         run: |
-          # 1. Archive the project (Uses .xcworkspace for CocoaPods support)
+          # 1. Archive the project, explicitly disabling code signing.
+          # We must use .xcworkspace for CocoaPods support.
           xcodebuild -workspace ios/App/App.xcworkspace \
             -scheme App \
             -configuration Release \
@@ -41,12 +42,30 @@ jobs:
             CODE_SIGNING_REQUIRED=NO \
             clean archive
           
-          # 2. Export the .ipa file (Uses a standard unsigned export method)
+          # 2. Create the necessary ExportOptions.plist for a non-signed 'development' build.
+          # This minimal plist is the key to fixing the export error.
+          cat << EOF > ExportOptions.plist
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+              <key>method</key>
+              <string>development</string>
+              <key>stripSwiftSymbols</key>
+              <true/>
+              <key>uploadBitcode</key>
+              <false/>
+              <key>uploadSymbols</key>
+              <false/>
+          </dict>
+          </plist>
+          EOF
+          
+          # 3. Export the .ipa file using the correct ExportOptions.plist
           xcodebuild -exportArchive \
             -archivePath $PWD/build/App.xcarchive \
             -exportPath $PWD/build \
-            -exportOptionsPlist ios/App/App/Info.plist \
-            -allowProvisioningUpdates
+            -exportOptionsPlist ExportOptions.plist
 
       - name: Upload the .ipa file
         # Saves the final IPA so you can download it from the workflow run
