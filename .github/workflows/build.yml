@@ -1,11 +1,13 @@
 name: Build IPA for Sideloading
 
 on:
-  workflow_dispatch: # This lets you click a button to start the build
+  # This lets you click a button to start the build manually from the Actions tab
+  workflow_dispatch: 
 
 jobs:
   build:
-    runs-on: macos-latest # This requests a free Mac virtual machine
+    # This requests a free Mac virtual machine
+    runs-on: macos-latest 
 
     steps:
       - uses: actions/checkout@v4 # Get your code
@@ -15,6 +17,12 @@ jobs:
 
       - name: Copy Web Assets (Safety Check)
         run: npx cap copy ios
+        
+      # CRITICAL FIX: Install and Update CocoaPods Dependencies
+      - name: Install Pods
+        run: |
+          cd ios/App
+          pod install --repo-update
 
       - name: Build the IPA 
         run: |
@@ -32,7 +40,8 @@ jobs:
             -archivePath $PWD/build/App.xcarchive \
             -exportPath $PWD/build \
             -exportOptionsPlist ios/App/App/Info.plist \
-            -allowProvisioningUpdatess
+            -allowProvisioningUpdates
+
       - name: Upload the .ipa file
         uses: actions/upload-artifact@v4
         with:
