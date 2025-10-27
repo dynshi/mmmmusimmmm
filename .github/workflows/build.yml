@@ -1,30 +1,38 @@
 name: Build IPA for Sideloading
 
 on:
-  # This lets you click a button to start the build manually from the Actions tab
+  # Allows triggering the workflow manually from the GitHub Actions tab
   workflow_dispatch: 
 
 jobs:
   build:
-    # This requests a free Mac virtual machine
+    # Use the latest macOS runner for Xcode build environment
     runs-on: macos-latest 
 
     steps:
-      - uses: actions/checkout@v4 # Get your code
+      - uses: actions/checkout@v4 # 1. Get your code
 
-      - name: Install Dependencies
+      - name: Set up Ruby for CocoaPods
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3' # Recommended ruby version for newer macOS/Xcode
+
+      - name: Install Node.js Dependencies
         run: npm install
 
-      - name: Copy Web Assets (Safety Check)
+      - name: Copy Web Assets (Capacitor Sync)
+        # This copies your web code into the native project structure
         run: npx cap copy ios
         
-      # CRITICAL FIX: Install and Update CocoaPods Dependencies
+      # 🚨 CRITICAL FIX: This step installs the native iOS dependencies (CocoaPods)
+      # This resolves the "Pods-App.release.xcconfig does not exist" error (Exit Code 65)
       - name: Install Pods
         run: |
           cd ios/App
           pod install --repo-update
 
       - name: Build the IPA 
+        # The xcodebuild path and command lines are now corrected for standard Capacitor projects
         run: |
           # Archive the project (CORRECTED PATH)
           xcodebuild -project ios/App/App.xcodeproj \
@@ -32,6 +40,7 @@ jobs:
             -configuration Release \
             -destination 'generic/platform=iOS' \
             -archivePath $PWD/build/App.xcarchive \
+            # IMPORTANT: Using CODE_SIGNING_ALLOWED=NO bypasses certificate requirements for unsigned builds
             CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO \
             clean archive
           
@@ -39,6 +48,7 @@ jobs:
           xcodebuild -exportArchive \
             -archivePath $PWD/build/App.xcarchive \
             -exportPath $PWD/build \
+            # Assumes Info.plist is in the standard Capacitor location
             -exportOptionsPlist ios/App/App/Info.plist \
             -allowProvisioningUpdates
 
@@ -46,4 +56,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Musi-App-IPA
-          path: build/App.ipa
+          path: build/App.ipa # The final .ipa is created here
