@@ -32,15 +32,14 @@ jobs:
           pod install --repo-update
 
       - name: Build the IPA 
-        # The xcodebuild path and command lines are now corrected for standard Capacitor projects
         run: |
-          # Archive the project (CORRECTED PATH)
+          # Archive the project (ENSURING SIGNING IS DISABLED)
           xcodebuild -project ios/App/App.xcodeproj \
             -scheme App \
             -configuration Release \
             -destination 'generic/platform=iOS' \
             -archivePath $PWD/build/App.xcarchive \
-            # IMPORTANT: Using CODE_SIGNING_ALLOWED=NO bypasses certificate requirements for unsigned builds
+            # 👇 THESE FLAGS ARE ESSENTIAL to bypass the signing requirement
             CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO \
             clean archive
           
@@ -48,7 +47,6 @@ jobs:
           xcodebuild -exportArchive \
             -archivePath $PWD/build/App.xcarchive \
             -exportPath $PWD/build \
-            # Assumes Info.plist is in the standard Capacitor location
             -exportOptionsPlist ios/App/App/Info.plist \
             -allowProvisioningUpdates
 
