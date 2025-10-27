@@ -29,10 +29,9 @@ jobs:
           cd ios/App
           pod install --repo-update
 
-      - name: Build and Export Unsigned IPA (Definitive Fix)
+      - name: Build and Export Unsigned IPA (Absolute Final Fix)
         run: |
-          # 1. Archive the project, explicitly disabling code signing. (SUCCESSFUL)
-          # We must use .xcworkspace for CocoaPods support.
+          # 1. Archive the project, explicitly disabling code signing. (This step already SUCCEEDS)
           xcodebuild -workspace ios/App/App.xcworkspace \
             -scheme App \
             -configuration Release \
@@ -42,8 +41,9 @@ jobs:
             CODE_SIGNING_REQUIRED=NO \
             clean archive
           
-          # 2. Create the bulletproof ExportOptions.plist using 'none' and empty teamID.
-          # This satisfies Xcode's validation checks without requiring credentials.
+          # 2. Create the bulletproof ExportOptions.plist using 'method: none' 
+          # AND a dummy provisioningProfiles entry to satisfy Xcode's validation.
+          # This should eliminate the exit code 70 error.
           cat << EOF > ExportOptions.plist
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -55,6 +55,11 @@ jobs:
               <string>manual</string>
               <key>teamID</key>
               <string></string>
+              <key>provisioningProfiles</key>
+              <dict>
+                <key>com.dynshi.musi</key>
+                <string>UnsignedProfile</string>
+              </dict>
           </dict>
           </plist>
           EOF
