@@ -26,38 +26,38 @@ jobs:
           cd ios/App
           pod install --repo-update
 
-      - name: Build and Export Unsigned IPA (Supported Method Fix)
+      - name: Build and Package Unsigned IPA (Manual Bypass)
         run: |
-          # 1. Archive the project, explicitly disabling code signing. (This step SUCCEEDS)
+          ARCHIVE_PATH=$PWD/build/App.xcarchive
+          EXPORT_PATH=$PWD/build
+          
+          # 1. Archive the project (This step already SUCCEEDS)
           xcodebuild -workspace ios/App/App.xcworkspace \
             -scheme App \
             -configuration Release \
             -destination 'generic/platform=iOS' \
-            -archivePath $PWD/build/App.xcarchive \
+            -archivePath "$ARCHIVE_PATH" \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             clean archive
           
-          # 2. Create ExportOptions.plist using the *supported* method: 'development'.
-          # We eliminate all other keys to avoid validation errors.
-          cat << EOF > ExportOptions.plist
-          <?xml version="1.0" encoding="UTF-8"?>
-          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-          <plist version="1.0">
-          <dict>
-              <key>method</key>
-              <string>development</string>
-          </dict>
-          </plist>
-          EOF
+          # 2. **BYPASS EXPORT FAILURE:** Manually package the .ipa file.
+          # Create the Payload directory structure required for an IPA.
+          mkdir -p "$EXPORT_PATH/Payload"
           
-          # 3. Export the .ipa file.
-          xcodebuild -exportArchive \
-            -archivePath $PWD/build/App.xcarchive \
-            -exportPath $PWD/build \
-            -exportOptionsPlist ExportOptions.plist
+          # Copy the compiled .app bundle from the archive into the Payload folder.
+          # The .app file is the actual application binary.
+          cp -R "$ARCHIVE_PATH/Products/Applications/App.app" "$EXPORT_PATH/Payload/"
+          
+          # Zip the Payload directory to create the .ipa file.
+          cd "$EXPORT_PATH"
+          zip -r App.ipa Payload
+          
+          # Clean up the intermediate folder
+          rm -rf Payload
 
       - name: Upload the .ipa file
+        # Saves the final IPA so you can download it from the workflow run
         uses: actions/upload-artifact@v4
         with:
           name: Musi-App-IPA
