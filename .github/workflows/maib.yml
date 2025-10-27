@@ -18,8 +18,8 @@ jobs:
 
       - name: Build the IPA 
             run: |
-              # Archive the project (Corrected path for the .xcodeproj file)
-              xcodebuild -project ios/App.xcodeproj \
+              # Archive the project (Using the default project path)
+              xcodebuild -project ios/App/App.xcodeproj \
                          -scheme App \
                          -configuration Release \
                          -destination 'generic/platform=iOS' \
@@ -27,11 +27,11 @@ jobs:
                          CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO \
                          clean archive
               
-              # Export the .ipa file (Corrected path for Info.plist)
+              # Export the .ipa file (Ensuring the Info.plist path is correct)
               xcodebuild -exportArchive \
                          -archivePath $PWD/build/App.xcarchive \
                          -exportPath $PWD/build \
-                         -exportOptionsPlist ios/App/Info.plist \
+                         -exportOptionsPlist ios/App/App/Info.plist \
                          -allowProvisioningUpdates
 
       - name: Upload the .ipa file
