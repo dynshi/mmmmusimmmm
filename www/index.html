@@ -91,10 +91,12 @@
         }
         /* --- In the section titled 'GLOBAL & STRUCTURE (STABLE BASE)' --- */
 .phone-container {
-    /* REMOVED max-width and max-height to ensure full screen fill */
-    width: 100vw; height: 100vh; 
+    width: 100vw; 
+    height: 100vh; 
+    height: calc(100vh + env(safe-area-inset-top));
     position: relative; overflow: hidden; border: 1px solid #333; 
     background: var(--main-bg-color); z-index: 1;
+    padding-top: env(safe-area-inset-top);
 }
         .phone-container .wave-background, .phone-container .particle-background { position: absolute; z-index: 0; }
         @media (max-width: 428px) { .phone-container { max-width: 100vw; max-height: 100vh; border: none; } }
@@ -109,7 +111,7 @@
         .animated-wallpaper-on .themed-bg, .particle-wallpaper-on .themed-bg { background: transparent; }
         .animated-wallpaper-on .search-bottom, .particle-wallpaper-on .search-bottom { background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); }
 
-        .header { padding: 20px; font-size: 22px; font-weight: 600; text-align: center; flex-shrink: 0; position: relative; color: var(--main-text-color); }
+        .header { padding: 20px; padding-top: calc(20px + env(safe-area-inset-top)); font-size: 22px; font-weight: 600; text-align: center; flex-shrink: 0; position: relative; color: var(--main-text-color); }
         .account-btn { position: absolute; top: 15px; right: 15px; background: none; border: none; cursor: pointer; padding: 10px; z-index: 10; }
         .account-btn svg { width: 26px; height: 26px; fill: var(--main-text-color); }
         .back-btn { position: absolute; top: 20px; left: 15px; background: none; border: none; color: var(--main-text-color); font-size: 28px; cursor: pointer; z-index: 10; padding: 10px; }
@@ -250,7 +252,7 @@
 
         /* --- HOME SCREEN (UPDATED) --- */
         .home-content { flex: 1; display: flex; flex-direction: column; padding: 20px; color: white; position: relative; justify-content: center; }
-        .home-header { text-align: left; padding-left: 10px; position: absolute; top: 80px; left: 30px; width: calc(100% - 60px); }
+        .home-header { text-align: left; padding-left: 10px; position: absolute; top: calc(80px + env(safe-area-inset-top)); left: 30px; width: calc(100% - 60px); }
         .home-greeting-day { font-size: 28px; font-weight: 700; }
         .home-greeting-name { font-size: 18px; font-weight: 400; opacity: 0.9; }
         .home-center-area { display: flex; flex-direction: column; align-items: center; justify-content: center; }
