@@ -89,11 +89,13 @@
             margin: 0; padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); 
             transition: background 0.3s, color 0.3s; 
         }
-        .phone-container { 
-            width: 100vw; height: 100vh; max-width: 428px; max-height: 926px; 
-            position: relative; overflow: hidden; border: 1px solid #333; 
-            background: var(--main-bg-color); z-index: 1;
-        }
+        /* --- In the section titled 'GLOBAL & STRUCTURE (STABLE BASE)' --- */
+.phone-container {
+    /* REMOVED max-width and max-height to ensure full screen fill */
+    width: 100vw; height: 100vh; 
+    position: relative; overflow: hidden; border: 1px solid #333; 
+    background: var(--main-bg-color); z-index: 1;
+}
         .phone-container .wave-background, .phone-container .particle-background { position: absolute; z-index: 0; }
         @media (max-width: 428px) { .phone-container { max-width: 100vw; max-height: 100vh; border: none; } }
         
@@ -146,6 +148,105 @@
         .phone-container.glass-nav-on .floating-menu { bottom: 170px; }
         .phone-container.glass-nav-on .floating-menu.mini-player-active { bottom: 255px; }
 
+
+        /* --- GLASSMORHISM THEME STYLES (NEW) --- */
+        :root {
+            --glass-bg-base: rgba(255, 255, 255, 0.15);
+            --glass-border-color: rgba(255, 255, 255, 0.3);
+            --glass-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+            --glass-backdrop-filter: blur(10px);
+        }
+
+        .phone-container.glassmorphism-on .screen,
+        .phone-container.glassmorphism-on .mini-player,
+        .phone-container.glassmorphism-on .search-bottom {
+            /* Make screen and large areas transparent to show background blur */
+            background: transparent !important;
+        }
+
+        /* Selectors for all buttons and panels to apply glassmorphism style when theme is active */
+        .phone-container.glassmorphism-on .glassmorphism-element,
+        .phone-container.glassmorphism-on .home-btn,
+        .phone-container.glassmorphism-on .floating-add-btn,
+        .phone-container.glassmorphism-on .upload-btn,
+        .phone-container.glassmorphism-on .mini-play-btn,
+        .phone-container.glassmorphism-on .control-btn,
+        .phone-container.glassmorphism-on .visualizer-control-btn,
+        .phone-container.glassmorphism-on .visualizer-mode-btn,
+        .phone-container.glassmorphism-on .search-input,
+        .phone-container.glassmorphism-on .search-icon-circle,
+        .phone-container.glassmorphism-on .settings-item,
+        .phone-container.glassmorphism-on .player-bar,
+        .phone-container.glassmorphism-on .mini-player {
+            background: var(--glass-bg-base) !important;
+            backdrop-filter: var(--glass-backdrop-filter) !important;
+            -webkit-backdrop-filter: var(--glass-backdrop-filter) !important;
+            border: 1px solid var(--glass-border-color) !important;
+            box-shadow: var(--glass-shadow) !important;
+            color: white !important; /* Ensure text remains visible */
+        }
+        
+        /* Ensure inner icons of control buttons retain their color */
+        .phone-container.glassmorphism-on .mini-play-btn svg,
+        .phone-container.glassmorphism-on .control-btn svg,
+        .phone-container.glassmorphism-on .visualizer-control-btn svg {
+            fill: var(--primary-accent) !important;
+        }
+
+        /* Remove the pixel shadow on glass elements for a cleaner look */
+        .phone-container.glassmorphism-on .home-btn:active,
+        .phone-container.glassmorphism-on .floating-add-btn:active,
+        .phone-container.glassmorphism-on .mini-play-btn:active {
+            transform: none !important;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.3) !important;
+        }
+
+        /* Adjust content padding for floating nav bar on the lists/grids */
+        .phone-container.glassmorphism-on .song-list-container,
+        .phone-container.glassmorphism-on .playlist-grid {
+            padding-bottom: 120px !important; 
+        }
+
+        /* --- TOGGLE SWITCH STYLES (REQUIRED for the new setting) --- */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 45px;
+            height: 25px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .toggle-switch .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.4s;
+            border-radius: 25px;
+        }
+        .toggle-switch .slider:before {
+            position: absolute;
+            content: "";
+            height: 19px;
+            width: 19px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+        .toggle-switch input:checked + .slider {
+            background-color: var(--primary-accent);
+        }
+        .toggle-switch input:checked + .slider:before {
+            transform: translateX(20px);
+        }
 
         /* --- HOME SCREEN (UPDATED) --- */
         .home-content { flex: 1; display: flex; flex-direction: column; padding: 20px; color: white; position: relative; justify-content: center; }
@@ -484,6 +585,8 @@
 </head>
 <body class="theme-blue">
     <div class="phone-container">
+
+        
         
         <div class="wave-background">
             <div class="wave"></div><div class="wave"></div><div class="wave"></div>
@@ -516,7 +619,63 @@
         <div class="screen themed-bg" id="nowPlayingScreen"><button class="back-btn" onclick="goBack()">∨</button><div class="now-playing" id="nowPlayingContainer"><div class="now-playing-title-section"><div class="now-playing-title" id="nowPlayingTitle">Song Name</div><div class="now-playing-meta" id="nowPlayingMeta">Artist</div></div><div class="now-playing-art" id="nowPlayingArt"></div><div class="progress-section"><div class="progress-times"><span id="currentTime">0:00</span><span id="totalTime">0:00</span></div><div class="progress-bar" id="progressBar"><div class="progress-fill" id="progressFill"><div class="progress-handle"></div></div></div></div><div class="playback-controls"><button class="control-btn skip-prev" id="prevBtn"><svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></button><button class="control-btn play-pause" id="playPauseBtn"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button><button class="control-btn skip-next" id="nextBtn"><svg viewBox="0 0 24 24"><path d="M16 18h2V6h-2zM6 18l8.5-6L6 6z"/></svg></button></div><div class="player-bars-container" id="playerBarsContainer"><div class="player-bar" id="playerBarLeft"><button class="player-bar-btn" id="repeatBtnPlayer" onclick="toggleRepeat()" title="Repeat"><svg viewBox="0 0 24 24"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg></button><button class="player-bar-btn" id="shuffleBtnPlayer" onclick="toggleShuffle()" title="Shuffle"><svg viewBox="0 0 24 24"><path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/></svg></button><button class="player-bar-btn" id="deviceBtnPlayer" onclick="toggleDeviceConnection()" title="Connect to a device"><svg viewBox="0 0 24 24"><path d="M21 3H3c-1.1 0-2 .9-2 2v3h2V5h18v14h-7v2h7c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM1 18v3h3c0-1.66-1.34-3-3-3zm0-4v2c2.76 0 5 2.24 5 5h2c0-3.87-3.13-7-7-7zm0-4v2c4.97 0 9 4.03 9 9h2c0-6.08-4.93-11-11-11z"/></svg></button></div><div class="player-bar" id="playerBarRight"><button class="player-bar-btn" id="visualizerBtnPlayer" onclick="toggleVisualizer()" title="Visualizer"><svg viewBox="0 0 24 24"><path d="M10 20h4V4h-4v16zm-6 0h4v-8H4v8zM16 9v11h4V9h-4z"/></svg></button><button class="player-bar-btn" id="voiceBtnPlayer" onclick="activateVoiceAssistant()" title="Voice Assistant"><svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.49 6-3.31 6-6.72h-1.7z"/></svg></button></div></div></div></div>
         <div class="screen" id="visualizerScreen"><button class="back-btn" onclick="goBack()">∨</button><div class="visualizer-content"><div class="visualizer-info"><div class="visualizer-song-title" id="visualizerSongTitle">Song Name</div><div class="visualizer-song-artist" id="visualizerSongArtist">Artist</div></div><canvas id="visualizerCanvas"></canvas><div class="visualizer-progress-section"><div class="visualizer-progress-times"><span id="visualizerCurrentTime">0:00</span><span id="visualizerTotalTime">0:00</span></div><div class="visualizer-progress-bar" id="visualizerProgressBar"><div class="visualizer-progress-fill" id="visualizerProgressFill"><div class="visualizer-progress-handle"></div></div></div></div><div class="visualizer-playback-controls"><button class="visualizer-control-btn skip" onclick="if (currentSongIndex > 0) playSong(currentSongIndex - 1, false);"><svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg></button><button class="visualizer-control-btn play-pause" id="visualizerPlayPauseBtn" onclick="togglePlayPause()"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button><button class="visualizer-control-btn skip" onclick="playNextSong(false)"><svg viewBox="0 0 24 24"><path d="M16 18h2V6h-2zM6 18l8.5-6L6 6z"/></svg></button></div><div class="visualizer-mode-switcher"><button class="visualizer-mode-btn active" onclick="setVisualizerMode('bars')">Bars</button><button class="visualizer-mode-btn" onclick="setVisualizerMode('circle')">Circle</button><button class="visualizer-mode-btn" onclick="setVisualizerMode('wave')">Wave</button></div></div></div>
         <div class="screen themed-bg" id="myAccountScreen"><button class="back-btn" onclick="goBack()">∨</button><div class="header">My Account</div><div class="settings-container"><div class="account-item" onclick="switchScreen('settingsScreen')"><span class="settings-label">Settings</span><span>></span></div></div></div>
-        <div class="screen themed-bg" id="settingsScreen"><button class="back-btn" onclick="goBack()">∨</button><div class="header">Settings</div><div class="settings-container"><div class="settings-category-header">App Settings</div><div class="settings-item"><span class="settings-label">App Theme</span><div class="theme-options" style="margin: 0;"><button class="theme-btn theme-blue" onclick="setTheme('theme-blue')" title="Blue"></button><button class="theme-btn theme-orange" onclick="setTheme('theme-orange')" title="Orange"></button><button class="theme-btn theme-purple" onclick="setTheme('theme-purple')" title="Purple"></button><button class="theme-btn theme-red" onclick="setTheme('theme-red')" title="Red"></button><button class="theme-btn theme-green" onclick="setTheme('theme-green')" title="Green"></button><button class="theme-btn theme-white" onclick="setTheme('theme-white')" title="White"></button><button class="theme-btn theme-matte-black" onclick="setTheme('theme-matte-black')" title="Matte Black"></button></div></div><div class="settings-item" onclick="toggleAnimatedWallpaper()"><span class="settings-label">Wave Wallpaper</span><span id="animatedWallpaperToggle" style="opacity: 0.7; font-weight: 600;">OFF</span></div><div class="settings-item" onclick="toggleParticleWallpaper()"><span class="settings-label">Particle Wallpaper</span><span id="particleWallpaperToggle" style="opacity: 0.7; font-weight: 600;">OFF</span></div><div class="settings-item" onclick="toggleGlassNav()"><span class="settings-label">Glass Navigation Bar</span><span id="glassNavToggle" style="opacity: 0.7; font-weight: 600;">OFF</span></div><div class="settings-category-header">Player Settings</div><div class="settings-item" onclick="toggleBackgroundArt()"><span class="settings-label">Full Player Background Art</span><span id="bgArtToggle" style="opacity: 0.7; font-weight: 600;">OFF</span></div><div class="settings-item" onclick="toggleVinylSpin()"><span class="settings-label">Spinning Vinyl Animation</span><span id="vinylSpinToggle" style="opacity: 0.7; font-weight: 600;">OFF</span></div><div class="settings-item"><span class="settings-label">Player Bar Style</span><span id="playerBarStyleToggle" style="opacity: 0.7; font-weight: 600; cursor: pointer;" onclick="togglePlayerBarTransparency()">WHITE</span></div><div class="settings-item"><label for="iconColorPicker" class="settings-label">Player Icon Color</label><input type="color" id="iconColorPicker"></div></div></div>
+        
+        <div class="screen themed-bg" id="settingsScreen">
+            <button class="back-btn" onclick="goBack()">∨</button>
+            <div class="header">Settings</div>
+            <div class="settings-container">
+                <div class="settings-item" id="glassmorphismToggleSetting">
+                    <span class="settings-label">Glassmorphism Theme</span>
+                    <div class="toggle-switch">
+                        <input type="checkbox" id="glassmorphism-toggle" hidden>
+                        <label for="glassmorphism-toggle" class="slider"></label>
+                    </div>
+                </div>
+                <div class="settings-category-header">Appearance</div>
+                <div class="settings-item">
+                    <span class="settings-label">App Theme</span>
+                    <div class="theme-options" style="margin: 0;">
+                        <button class="theme-btn theme-blue" onclick="setTheme('theme-blue')" title="Blue"></button>
+                        <button class="theme-btn theme-orange" onclick="setTheme('theme-orange')" title="Orange"></button>
+                        <button class="theme-btn theme-purple" onclick="setTheme('theme-purple')" title="Purple"></button>
+                        <button class="theme-btn theme-red" onclick="setTheme('theme-red')" title="Red"></button>
+                        <button class="theme-btn theme-green" onclick="setTheme('theme-green')" title="Green"></button>
+                        <button class="theme-btn theme-white" onclick="setTheme('theme-white')" title="White"></button>
+                        <button class="theme-btn theme-matte-black" onclick="setTheme('theme-matte-black')" title="Matte Black"></button>
+                    </div>
+                </div>
+                <div class="settings-item" onclick="toggleAnimatedWallpaper()">
+                    <span class="settings-label">Wave Wallpaper</span>
+                    <span id="animatedWallpaperToggle" style="opacity: 0.7; font-weight: 600;">OFF</span>
+                </div>
+                <div class="settings-item" onclick="toggleParticleWallpaper()">
+                    <span class="settings-label">Particle Wallpaper</span>
+                    <span id="particleWallpaperToggle" style="opacity: 0.7; font-weight: 600;">OFF</span>
+                </div>
+                <div class="settings-item" onclick="toggleGlassNav()">
+                    <span class="settings-label">Glass Navigation Bar</span>
+                    <span id="glassNavToggle" style="opacity: 0.7; font-weight: 600;">OFF</span>
+                </div>
+        
+                <div class="settings-category-header">Player Settings</div>
+                <div class="settings-item" onclick="toggleBackgroundArt()">
+                    <span class="settings-label">Full Player Background Art</span>
+                    <span id="bgArtToggle" style="opacity: 0.7; font-weight: 600;">OFF</span>
+                </div>
+                <div class="settings-item" onclick="toggleVinylSpin()">
+                    <span class="settings-label">Spinning Vinyl Animation</span>
+                    <span id="vinylSpinToggle" style="opacity: 0.7; font-weight: 600;">OFF</span>
+                </div>
+                <div class="settings-item">
+                    <span class="settings-label">Player Bar Style</span>
+                    <span id="playerBarStyleToggle" style="opacity: 0.7; font-weight: 600; cursor: pointer;" onclick="togglePlayerBarTransparency()">WHITE</span>
+                </div>
+                <div class="settings-item">
+                    <label for="iconColorPicker" class="settings-label">Player Icon Color</label>
+                    <input type="color" id="iconColorPicker">
+                </div>
+            </div>
+        </div>
         
         <div class="mini-player" id="miniPlayer" onclick="showFullPlayer()"><div class="mini-player-info"><div class="mini-player-title" id="miniPlayerTitle">Song Name</div><div class="mini-player-artist" id="miniPlayerArtist">Artist</div></div><div class="mini-player-controls"><button class="mini-play-btn" id="miniPlayBtn" onclick="event.stopPropagation(); togglePlayPause()"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button></div></div>
         <div class="bottom-nav"><button class="nav-btn active" onclick="switchScreen('homeScreen')"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></button><button class="nav-btn" onclick="switchScreen('songsScreen')"><svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3z"/></svg></button><button class="nav-btn" onclick="switchScreen('playlistsScreen')"><svg viewBox="0 0 24 24"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg></button><button class="nav-btn" onclick="switchScreen('searchScreen')"><svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg></button></div>
@@ -951,6 +1110,44 @@ function handlePlaylistEdit() {
         function applyGlassNavSettings() { const container = document.querySelector('.phone-container'); const toggleLabel = document.getElementById('glassNavToggle'); container.classList.toggle('glass-nav-on', useGlassNav); toggleLabel.textContent = useGlassNav ? 'ON' : 'OFF'; }
         function togglePlayerBarTransparency() { playerBarTransparent = !playerBarTransparent; localStorage.setItem('musiPlayerBarTransparent', playerBarTransparent); applyPlayerBarSettings(); }
         function applyPlayerBarSettings() { const container = document.getElementById('playerBarsContainer'); const toggleLabel = document.getElementById('playerBarStyleToggle'); const root = document.documentElement; if (playerBarTransparent) { container.classList.add('transparent'); toggleLabel.textContent = 'TRANSPARENT'; } else { container.classList.remove('transparent'); toggleLabel.textContent = 'WHITE'; } const defaultIconColor = playerBarTransparent ? '#FFFFFF' : '#000000'; root.style.setProperty('--player-bar-icon-color', playerBarIconColor || defaultIconColor); document.getElementById('iconColorPicker').value = playerBarIconColor || defaultIconColor; }
+        
+        // --- GLASSMORHISM THEME LOGIC (NEW) ---
+        const glassmorphismToggle = document.getElementById('glassmorphism-toggle');
+        const glassmorphismKey = 'glassmorphism-theme-on';
+        
+        // Function to apply or remove the glassmorphism theme class
+        function toggleGlassmorphismTheme(isOn) {
+            const phoneContainer = document.querySelector('.phone-container');
+            if (isOn) {
+                phoneContainer.classList.add('glassmorphism-on');
+                // Combine the existing glass nav bar by toggling its class as well, 
+                // as requested by the user, and to ensure position adjustments apply.
+                phoneContainer.classList.add('glass-nav-on'); 
+                localStorage.setItem(glassmorphismKey, 'true');
+            } else {
+                phoneContainer.classList.remove('glassmorphism-on');
+                phoneContainer.classList.remove('glass-nav-on'); 
+                localStorage.setItem(glassmorphismKey, 'false');
+            }
+        }
+        
+        // Event listener for the toggle switch
+        if (glassmorphismToggle) {
+            glassmorphismToggle.addEventListener('change', (e) => {
+                toggleGlassmorphismTheme(e.target.checked);
+            });
+        }
+        
+        // Load saved state on startup
+        function loadGlassmorphismState() {
+            const savedState = localStorage.getItem(glassmorphismKey) === 'true';
+            if (glassmorphismToggle) {
+                glassmorphismToggle.checked = savedState;
+            }
+            toggleGlassmorphismTheme(savedState);
+        }
+        // --- END GLASSMORHISM THEME LOGIC ---
+
         function loadAllSettings() {
             setTheme(localStorage.getItem('musiTheme') || 'theme-blue');
             if (localStorage.getItem('musiVinylSpin') === 'true') { useVinylSpin = true; document.getElementById('vinylSpinToggle').textContent = 'ON'; }
@@ -960,6 +1157,7 @@ function handlePlaylistEdit() {
             playerBarTransparent = localStorage.getItem('musiPlayerBarTransparent') === 'true';
             playerBarIconColor = localStorage.getItem('musiPlayerBarIconColor');
             applyPlayerBarSettings();
+            loadGlassmorphismState(); // Load the glassmorphism state
         }
         function setupParticles() {
             const container = document.getElementById('particleBackground');
@@ -979,7 +1177,7 @@ function handlePlaylistEdit() {
 
         document.addEventListener('DOMContentLoaded', () => {
             loadAllSettings(); loadSongsFromStorage(); updateGreeting(); setupParticles();
-            document.getElementById('iconColorPicker').addEventListener('input', (e) => { playerBarIconColor = e.target.value; localStorage.setItem('musiPlayerBarIconColor', playerBarIconColor); applyPlayerBarSettings(); });
+            document.getElementById('iconColorPicker').addEventListener('input', (e) => { playerBarIconColor = e.target.value; localStorage.setItem('ma-player-bar-icon-color', playerBarIconColor); applyPlayerBarSettings(); });
         });
         
         // --- Storage Functions ---
